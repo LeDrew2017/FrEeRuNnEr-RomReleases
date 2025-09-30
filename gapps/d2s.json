@@ -1,0 +1,17 @@
+{
+  "response": [
+    {
+        "maintainer": "",
+        "support_group":"",
+        "oem": "samsung",
+        "device": "d2s",
+        "device_name": "",
+        "filename": "Matrixx-v11.8.0-Official-d2s-Gapps-202509291610.zip",
+        "download": "https://sourceforge.net/projects/projectmatrixx/files/Android-15/d2s/Matrixx-v11.8.0-Official-d2s-Gapps-202509291610.zip/download",
+        "timestamp": 1759176546,
+        "md5": "15bcc0f944152d7ae7155b9151b3dffc",
+        "size": 2311825966,
+        "version": "11.8.0"
+    }
+  ]
+}

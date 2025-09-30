@@ -1,0 +1,2 @@
+- September Patch
+- Switched to stock AOSP kernel
