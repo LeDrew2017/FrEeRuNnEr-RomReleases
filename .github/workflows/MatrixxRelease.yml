@@ -1,0 +1,42 @@
+name: Matrixx Release Bot
+
+on:
+  push:
+    branches:
+      - main # Or your default branch
+    paths:
+      - 'gapps/**.json'
+      - 'vanilla/**.json'
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install pyTelegramBotAPI
+
+      - name: Find Changed JSON Files
+        id: changed-files
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            gapps/**.json
+            vanilla/**.json
+
+      - name: Run Combined Poster Script
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          # MODIFIED: These lines now match your secret names
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          # Pass all changed file names to the script at once
+          python .github/scripts/post.py ${{ steps.changed-files.outputs.all_changed_files }}
