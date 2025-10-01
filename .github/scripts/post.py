@@ -5,13 +5,23 @@ import json
 import datetime
 import sys
 import re
-from typing import List
 
-# 1. Defined a fixed order for device listing.
 DEVICE_ORDER = [
     "beyond0lte", "beyond1lte", "beyond2lte", "beyondx",
     "d1", "d1x", "d2s", "d2x", "f62"
 ]
+
+DEVICE_NAME_MAP = {
+    "beyond0lte": "Galaxy S10e",
+    "beyond1lte": "Galaxy S10",
+    "beyond2lte": "Galaxy S10+",
+    "beyondx": "Galaxy S10 5G",
+    "d1": "Galaxy Note 10",
+    "d1x": "Galaxy Note 10 5G",
+    "d2s": "Galaxy Note 10+",
+    "d2x": "Galaxy Note 10+ 5G",
+    "f62": "Galaxy F62"
+}
 
 def getConfig(config_name: str):
     return os.getenv(config_name)
@@ -27,136 +37,99 @@ BANNER_PATH = "./assets/rom-banner.jpg"
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 def process_device_files(file_paths: list):
-    """
-    This function remains mostly unchanged to correctly process JSON files.
-    """
-    gapps_devices = []
-    vanilla_devices = []
+    all_devices = []
     common_info = {}
-    codename_map = {}
-    all_devices_raw = []
 
-    # Definitive map for device codenames to names as a fallback
-    DEVICE_NAME_MAP = {
-        "beyond0lte": "Galaxy S10e",
-        "beyond1lte": "Galaxy S10",
-        "beyond2lte": "Galaxy S10+",
-        "beyondx": "Galaxy S10 5G",
-        "d1": "Galaxy N10",
-        "d1x": "Galaxy N10 5G",
-        "d2s": "Galaxy N10 +",
-        "d2x": "Galaxy N10+ 5G",
-        "f62": "Galaxy F62"
-    }
-
+    # Try to read changelog
     try:
         with open("changelog.md", "r") as f:
-            device_changelog = f.read()
+            device_changelog = f.read().strip()
     except FileNotFoundError:
-        device_changelog = "Changelog not found."
+        device_changelog = "No changelog available"
 
-    # First pass: Gather all data and build the codename map
     for i, file_path in enumerate(file_paths):
         try:
             with open(file_path) as device_file:
                 info = json.loads(device_file.read())['response'][0]
-                codename = os.path.basename(file_path).split('.')[0].replace('_gapps', '')
-                device_name = info.get('device_name', '')
-
+                codename = os.path.basename(file_path).split('.')[0]
+                
+                # Get full device name from JSON, fallback to map
+                full_device_name = info.get('device', '')
+                if not full_device_name:
+                    full_device_name = DEVICE_NAME_MAP.get(codename, 'Unknown')
+                
                 device_data = {
-                    "device_name": device_name,
+                    "device_name": full_device_name,
                     "codename": codename,
                     "download": info['download'],
-                    "is_gapps": "gapps" in file_path.lower()
                 }
-                all_devices_raw.append(device_data)
+                all_devices.append(device_data)
 
-                if device_name:
-                    codename_map[codename] = device_name
-
+                # Extract common info from first file
                 if i == 0:
-                    version_match = re.search(r'(\d{1,2}\.\d{1,2}\.\d{1,2})', info['download'])
                     common_info = {
-                        "matrixx_version": version_match.group(1) if version_match else 'N/A',
+                        "version": info.get('version', 'N/A'),
                         "datetime": datetime.datetime.fromtimestamp(int(info['timestamp'])),
-                        "device_changelog": device_changelog
+                        "device_changelog": device_changelog,
+                        "maintainer": info.get('maintainer', ''),
+                        "telegram": info.get('telegram', ''),
+                        "forum": info.get('forum', ''),
+                        "gapps": info.get('gapps', ''),
+                        "recovery": info.get('recovery', '')
                     }
-                    if 'known_issues' in info:
-                        common_info['known_issues'] = info['known_issues']
         except (FileNotFoundError, IndexError, KeyError) as e:
             print(f"Could not process file {file_path}: {e}")
             continue
 
-    # Second pass: Populate missing names and sort into final lists
-    for device in all_devices_raw:
-        if not device['device_name']:
-            device['device_name'] = codename_map.get(device['codename'], '')
-        
-        if not device['device_name']:
-            device['device_name'] = DEVICE_NAME_MAP.get(device['codename'], 'Unknown Device')
+    return common_info, all_devices
 
-        if device['is_gapps']:
-            gapps_devices.append(device)
-        else:
-            vanilla_devices.append(device)
 
-    return common_info, gapps_devices, vanilla_devices
+def generate_post_message(common_info, device_list):
+    # Get maintainer telegram handle
+    maintainer_handle = common_info.get('telegram', '').replace('https://t.me/', '@')
+    if not maintainer_handle.startswith('@'):
+        maintainer_handle = '@lIlIlIlIlIlIlIlIllIIll'  # fallback
 
-# --- START OF MODIFICATIONS ---
+    # Header
+    msg = f"<b>OFFICIAL crDroid v{common_info['version']} A16 by {maintainer_handle}</b>\n\n"
 
-# 2. Reverted to a single message generator that handles variants.
-def generate_post_message(common_info, device_list, variant_type):
-    """
-    Generates a complete post message for a specific build variant (Gapps or Vanilla).
-    """
-    build_date = common_info['datetime'].strftime("%m/%d/%Y")
+    # Changelog
+    msg += f"<b>Changelog:</b>\n{common_info['device_changelog']}\n\n"
 
-    # 3. Hardcoded developer name and link as requested.
-    # Added "Gapps" to the title only if it's the Gapps variant.
-    variant_title = " Gapps" if variant_type == "Gapps" else ""
-    msg = (f"<b>OFFICIAL Project Matrixx v{common_info['matrixx_version']}{variant_title} A15 For Galaxy S10/N10 series and Galaxy F62 by "
-           f"<a href='https://t.me/FrEeRuNnEr4EvEr'>@FrEeRuNnEr4EvEr</a></b>\n\n")
-
-    msg += f"⚡️<b>Device Changelog {build_date}</b>⚡️\n"
-    msg += f"<code>{common_info['device_changelog']}</code>\n\n"
-    msg += "<b>Source Changelog</b> <a href='https://www.projectmatrixx.org/changelog'>HERE</a>\n"
-    msg += "<b>Screenshots</b> <a href='https://www.projectmatrixx.org/gallery'>HERE</a>\n\n"
-
-    if 'known_issues' in common_info:
-        msg += f"<b>Known issues:</b> {common_info['known_issues']}\n\n"
-
-    # Sort devices based on the predefined DEVICE_ORDER list
+    # Downloads section
     def sort_key(d):
         try:
             return DEVICE_ORDER.index(d['codename'])
         except ValueError:
-            return len(DEVICE_ORDER) # Place unknown devices at the end
-            
+            return len(DEVICE_ORDER)
+
     sorted_devices = sorted(device_list, key=sort_key)
 
-    msg += f"<b>Downloads {variant_type}:</b>\n"
+    msg += "<b>Downloads:</b>\n"
     for device in sorted_devices:
-        # 4. Changed link format to make only the codename clickable.
-        msg += f"<a href='{device['download']}'>{device['codename']}</a> ({device['device_name']})\n"
+        # Use the full device name from JSON
+        msg += f"<a href='{device['download']}'>{device['codename']}</a>  ({device['device_name']})\n"
+    
     msg += "\n"
 
-    # 5. Add Gapps link ONLY to the Vanilla post.
-    if variant_type == "Vanilla":
-        msg += "<b>Gapps</b> <a href='https://sourceforge.net/projects/nikgapps/files/Releases/Android-15/11-Jun-2025/'>HERE</a>\n\n"
+    # Note section
+    msg += "<b>Note:</b> crDroid recoveries are recommended to install, can be found inside the rom package. First time install, clean flash is mandatory.\n\n"
+    msg += "<b>GAPPS ARE NOT INCLUDED</b>\n\n"
 
-    # 6. Added a space after the "Note" and updated the recovery link.
-    msg += "<b>Note:</b> Project-Matrixx recoveries are recommended to install. First time install, clean flash is mandatory.\n\n"
-    msg += "<b>Project-Matrixx recoveries</b> <a href='https://drive.google.com/drive/folders/12dGe5d_F5ZII2cUS6Hd-rLBGXPZ2nMry'>HERE</a>\n\n"
+    # Support channels
+    msg += "Join my support channel: @metamorfoseado\n"
+    msg += "Join my support group: @crdroidpx\n\n"
+
+    # Thanks section
+    msg += "<b>Thanks:</b>\n"
+    msg += "@Linux4 for device trees\n"
+    msg += "@FreeRunner4ever for kernel\n"
+    msg += "All testers"
+
+    # Check message length (Telegram limit is 1024 for captions with photos)
+    if len(msg) > 1000:
+        print(f"Warning: Message length is {len(msg)} characters. May need truncation.")
     
-    msg += "<b>YOU CANNOT USE TWRP TO FLASH PROJECT MATRIXX!</b>\n\n"
-
-    msg += ("<b>Thanks:</b>\n"
-            "<a href='https://t.me/linux4'>Linux4</a> for device trees and kernel\n"
-            "<a href='https://t.me/sidex15'>SideX15</a> for susfs\n"
-            "<a href='https://t.me/rifsxd'>RifsxD</a> for KernelSU-Next\n"
-            "Project-Matrixx team\n"
-            "All my testers")
-
     return msg
 
 def send_post(chat_id, image, caption):
@@ -174,25 +147,19 @@ if __name__ == "__main__":
         exit(1)
 
     print(f"Processing {len(file_paths)} device files...")
-    common_info, gapps_devices, vanilla_devices = process_device_files(file_paths)
 
-    if not common_info:
-        print("Could not gather common info from any file. Cannot generate post.")
+    common_info, all_devices = process_device_files(file_paths)
+
+    if not common_info or not all_devices:
+        print("Could not gather info or find any devices. Cannot generate post.")
         exit(1)
 
-    # 7. Reverted main block to generate and send two separate posts.
-    if gapps_devices:
-        print("Generating Gapps post...")
-        gapps_message = generate_post_message(common_info, gapps_devices, "Gapps")
-        for chat in CHAT_IDS:
-            send_post(chat, BANNER_PATH, gapps_message)
-    else:
-        print("No Gapps devices found to post.")
-
-    if vanilla_devices:
-        print("Generating Vanilla post...")
-        vanilla_message = generate_post_message(common_info, vanilla_devices, "Vanilla")
-        for chat in CHAT_IDS:
-            send_post(chat, BANNER_PATH, vanilla_message)
-    else:
-        print("No Vanilla devices found to post.")
+    print("Generating post...")
+    message = generate_post_message(common_info, all_devices)
+    
+    print("\n=== Generated Message ===")
+    print(message)
+    print(f"\n=== Message Length: {len(message)} characters ===\n")
+    
+    for chat in CHAT_IDS:
+        send_post(chat, BANNER_PATH, message)
