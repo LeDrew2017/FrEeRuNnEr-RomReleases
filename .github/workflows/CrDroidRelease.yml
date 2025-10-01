@@ -1,11 +1,10 @@
-name: Matrixx Release Bot
+name: CrDroid Release Bot
 
 on:
   push:
     branches:
-      - main # Or your default branch
+      - main
     paths:
-      - 'gapps/**.json'
       - 'vanilla/**.json'
 
 jobs:
@@ -28,15 +27,12 @@ jobs:
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            gapps/**.json
             vanilla/**.json
 
-      - name: Run Combined Poster Script
+      - name: Run Poster Script
         if: steps.changed-files.outputs.any_changed == 'true'
         env:
-          # MODIFIED: These lines now match your secret names
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
         run: |
-          # Pass all changed file names to the script at once
           python .github/scripts/post.py ${{ steps.changed-files.outputs.all_changed_files }}
