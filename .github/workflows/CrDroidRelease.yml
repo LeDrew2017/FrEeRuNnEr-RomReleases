@@ -3,7 +3,7 @@ name: CrDroid Release Bot
 on:
   push:
     branches:
-      - main
+      - crdroid
     paths:
       - 'vanilla/**.json'
 
