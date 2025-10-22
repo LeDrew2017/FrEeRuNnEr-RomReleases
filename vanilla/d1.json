@@ -1,0 +1,28 @@
+{
+    "response": [
+        {
+            "maintainer": "Pedro Araujo",
+            "oem": "Samsung",
+            "device": "Galaxy Note 10",
+            "filename": "crDroidAndroid-16.0-20251022-d1-v12.2.zip",
+            "download": "https://sourceforge.net/projects/crdroid/files/d1/12.x/crDroidAndroid-16.0-20251022-d1-v12.2.zip/download",
+            "timestamp": 1761104213,
+            "md5": "1aa62eab89f5a6d817134e9e32457756",
+            "sha256": "0b6771daad5480f8209afe1ae8a797849320c68e15efd921b962dfdcfe98e2f9",
+            "size": 1284805255,
+            "version": "12.2",
+            "buildtype": "Monthly",
+            "forum": "https://xdaforums.com/t/rom-official-16-update-crdroid-12-n10-series-aosp-encryption.4714988/",
+            "gapps": "https://sourceforge.net/projects/nikgapps/files/Elite-Releases/crdroid-official/Android-16/16-Jul-2025/NikGapps-crdroid-official-arm64-16-20250716-signed.zip/download",
+            "firmware": "",
+            "modem": "",
+            "bootloader": "",
+            "recovery": "https://sourceforge.net/projects/crdroid/files/d1/12.x/recovery/",
+            "paypal": "",
+            "telegram": "https://t.me/metamorfoseado",
+            "dt": "https://github.com/crdroidandroid/android_device_samsung_d1",
+            "common-dt": "https://github.com/crdroidandroid/android_device_samsung_exynos9820-common",
+            "kernel": "https://github.com/crdroidandroid/android_kernel_samsung_exynos9820"
+        }
+    ]
+}
