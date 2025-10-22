@@ -1,0 +1,28 @@
+{
+    "response": [
+        {
+            "maintainer": "Pedro Araujo",
+            "oem": "Samsung",
+            "device": "Galaxy S10",
+            "filename": "crDroidAndroid-16.0-20251022-beyond1lte-v12.2.zip",
+            "download": "https://sourceforge.net/projects/crdroid/files/beyond1lte/12.x/crDroidAndroid-16.0-20251022-beyond1lte-v12.2.zip/download",
+            "timestamp": 1761126354,
+            "md5": "12d6efbd68f7ae7c82b59e034b10847b",
+            "sha256": "f43190435890c3606bad7b943411f92f8e59a5f2832e4458deaef39859872e85",
+            "size": 1303335483,
+            "version": "12.2",
+            "buildtype": "Monthly",
+            "forum": "https://xdaforums.com/t/rom-official-16-update-crdroid-12-s10-series-aosp-encryption.4714989/",
+            "gapps": "https://sourceforge.net/projects/nikgapps/files/Elite-Releases/crdroid-official/Android-16/16-Jul-2025/NikGapps-crdroid-official-arm64-16-20250716-signed.zip/download",
+            "firmware": "",
+            "modem": "",
+            "bootloader": "",
+            "recovery": "https://sourceforge.net/projects/crdroid/files/beyond1lte/12.x/recovery/",
+            "paypal": "",
+            "telegram": "https://t.me/metamorfoseado",
+            "dt": "https://github.com/crdroidandroid/android_device_samsung_beyond1lte",
+            "common-dt": "https://github.com/crdroidandroid/android_device_samsung_exynos9820-common",
+            "kernel": "https://github.com/crdroidandroid/android_kernel_samsung_exynos9820"
+        }
+    ]
+}
