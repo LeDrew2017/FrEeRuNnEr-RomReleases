@@ -1,2 +1,7 @@
-- September Patch
-- Switched to stock AOSP kernel
+- Android October 2025 Security Update
+- Fixed memory management with Launcher3
+- Enable Blur
+- Bring back blur and opacity customization
+- Reworked Edge Light
+- Reworked Pulse Visualizer
+- Misc fixes and improvements
