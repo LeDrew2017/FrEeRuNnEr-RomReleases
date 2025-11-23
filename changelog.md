@@ -1,7 +1,2 @@
-- Android October 2025 Security Update
-- Fixed memory management with Launcher3
-- Enable Blur
-- Bring back blur and opacity customization
-- Reworked Edge Light
-- Reworked Pulse Visualizer
-- Misc fixes and improvements
+- Switched to FrEeRuNnErKeRnEl V3.4 (non rooted version)
+- Switched to A16 branch for dolby atmos
