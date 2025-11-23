@@ -1,10 +1,11 @@
-name: CrDroid Release Bot
+name: Project Infinity X Release Bot
 
 on:
   push:
     branches:
-      - crdroid
+      - infinity
     paths:
+      - 'gapps/**.json'
       - 'vanilla/**.json'
 
 jobs:
@@ -13,6 +14,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,6 +30,7 @@ jobs:
         uses: tj-actions/changed-files@v42
         with:
           files: |
+            gapps/**.json
             vanilla/**.json
 
       - name: Run Poster Script
